@@ -273,6 +273,10 @@
 
   function startDraw() {
     showScreen("draw");
+    resetDrawAttempt();
+  }
+
+  function resetDrawAttempt() {
     sizeCanvas(canvas);
     drawState = newDrawState();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -283,6 +287,19 @@
       document.getElementById("timer").textContent = String(Math.max(0, drawState.timeLeft));
       if (drawState.timeLeft <= 0) finishDraw();
     }, 1000);
+  }
+
+  function isLargeEnough(points) {
+    if (!points || points.length < 2) return false;
+    var minX = points[0][0], maxX = points[0][0];
+    var minY = points[0][1], maxY = points[0][1];
+    for (var i = 1; i < points.length; i++) {
+      var x = points[i][0], y = points[i][1];
+      if (x < minX) minX = x; else if (x > maxX) maxX = x;
+      if (y < minY) minY = y; else if (y > maxY) maxY = y;
+    }
+    var minSide = canvas.width * 0.25;
+    return (maxX - minX) >= minSide && (maxY - minY) >= minSide;
   }
 
   function getPos(e) {
@@ -334,6 +351,11 @@
     if (drawState.timerId) {
       clearInterval(drawState.timerId);
       drawState.timerId = null;
+    }
+    if (!isLargeEnough(drawState.points)) {
+      alert("원이 충분히 크지 않습니다. 다시 그려주세요.");
+      resetDrawAttempt();
+      return;
     }
     submitResult();
   }
