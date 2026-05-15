@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>당신은 얼마나 정확한 원을 그릴 수 있나요?</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div id="app">
+
+    <!-- 메인 화면 -->
+    <section id="screen-main" class="screen">
+      <h1 class="title">당신은 얼마나<br>정확한 원을 그릴 수 있나요?</h1>
+      <button id="btn-start" class="btn-primary">시작</button>
+
+      <div class="hall">
+        <h2 class="hall-title">명예의 전당</h2>
+        <p id="empty-msg" class="empty-msg hidden">아직 기록이 없어요. 첫 도전자가 되어보세요!</p>
+        <div id="podium" class="podium"></div>
+        <ol id="rank-list" class="rank-list"></ol>
+      </div>
+    </section>
+
+    <!-- 닉네임 입력 화면 -->
+    <section id="screen-nickname" class="screen hidden">
+      <h2 class="subtitle">닉네임을 입력하세요</h2>
+      <input id="input-nickname" class="text-input" type="text" maxlength="20" placeholder="닉네임" autocomplete="off">
+
+      <label class="consent">
+        <input id="input-consent" type="checkbox">
+        <span>상품을 받기 원하시면 동의해 주세요</span>
+      </label>
+
+      <div id="contact-wrap" class="hidden">
+        <input id="input-contact" class="text-input" type="text" maxlength="50" placeholder="연락처 (전화번호 또는 이메일)" autocomplete="off">
+      </div>
+
+      <button id="btn-confirm" class="btn-primary">확인</button>
+      <button id="btn-back-main" class="btn-secondary">뒤로</button>
+    </section>
+
+    <!-- 그리기 화면 -->
+    <section id="screen-draw" class="screen hidden">
+      <div class="draw-header">
+        <span class="timer-label">남은 시간</span>
+        <span id="timer" class="timer">30</span>
+      </div>
+      <canvas id="draw-canvas" class="draw-canvas"></canvas>
+      <p class="draw-hint">한 번에 원을 그려보세요!</p>
+    </section>
+
+    <!-- 결과 화면 -->
+    <section id="screen-result" class="screen hidden">
+      <div id="result-accuracy" class="result-accuracy"></div>
+      <canvas id="result-canvas" class="result-canvas"></canvas>
+      <p id="result-comment" class="result-comment"></p>
+      <p id="result-rank" class="result-rank"></p>
+      <button id="btn-again" class="btn-primary">처음으로</button>
+    </section>
+
+  </div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

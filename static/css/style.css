@@ -1,0 +1,289 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  background: linear-gradient(160deg, #1e3a8a 0%, #312e81 100%);
+  color: #f8fafc;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ---- 공통 버튼/입력 ---- */
+.btn-primary,
+.btn-secondary {
+  border: none;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 14px 36px;
+  cursor: pointer;
+  transition: transform 0.05s ease, filter 0.15s ease;
+}
+
+.btn-primary {
+  background: #facc15;
+  color: #1e293b;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+}
+
+.btn-primary:active,
+.btn-secondary:active {
+  transform: scale(0.97);
+}
+
+.text-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  color: #1e293b;
+  font-size: 16px;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: #facc15;
+}
+
+/* ---- 메인 화면 ---- */
+.title {
+  text-align: center;
+  font-size: 26px;
+  line-height: 1.45;
+  margin: 24px 0 8px;
+}
+
+.subtitle {
+  font-size: 22px;
+  margin: 24px 0 4px;
+  text-align: center;
+}
+
+.hall {
+  width: 100%;
+  margin-top: 24px;
+  background: rgba(15, 23, 42, 0.45);
+  border-radius: 18px;
+  padding: 20px 16px;
+}
+
+.hall-title {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 18px;
+  color: #facc15;
+}
+
+.empty-msg {
+  text-align: center;
+  color: #cbd5e1;
+  padding: 16px 0;
+}
+
+/* ---- 시상대 ---- */
+.podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 10px;
+  min-height: 10px;
+}
+
+.podium-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 130px;
+}
+
+.medal {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 15px;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+
+.medal-1 { background: #fde047; }
+.medal-2 { background: #cbd5e1; }
+.medal-3 { background: #d8a26a; }
+
+.thumb {
+  background: #f8fafc;
+  border-radius: 10px;
+  width: 90px;
+  height: 90px;
+}
+
+.podium-nick {
+  margin-top: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.podium-acc {
+  font-size: 13px;
+  color: #facc15;
+  margin-bottom: 6px;
+}
+
+.podium-base {
+  width: 100%;
+  text-align: center;
+  font-weight: 800;
+  font-size: 18px;
+  color: #1e293b;
+  border-radius: 8px 8px 0 0;
+}
+
+.rank-1 .podium-base { background: #fde047; height: 64px; line-height: 64px; }
+.rank-2 .podium-base { background: #cbd5e1; height: 48px; line-height: 48px; }
+.rank-3 .podium-base { background: #d8a26a; height: 36px; line-height: 36px; }
+
+/* ---- 순위 목록 (4위 이하) ---- */
+.rank-list {
+  list-style: none;
+  margin-top: 18px;
+}
+
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rank-num {
+  width: 28px;
+  text-align: center;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.rank-nick {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rank-acc {
+  font-weight: 700;
+  color: #facc15;
+}
+
+/* ---- 닉네임 화면 ---- */
+.consent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  font-size: 15px;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+
+.consent input {
+  width: 20px;
+  height: 20px;
+  accent-color: #facc15;
+}
+
+#screen-nickname {
+  width: 100%;
+}
+
+#contact-wrap {
+  width: 100%;
+}
+
+/* ---- 그리기 화면 ---- */
+.draw-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.timer-label {
+  font-size: 14px;
+  color: #cbd5e1;
+}
+
+.timer {
+  font-size: 48px;
+  font-weight: 800;
+  color: #facc15;
+}
+
+.draw-canvas {
+  background: #f8fafc;
+  border-radius: 16px;
+  touch-action: none;
+}
+
+.draw-hint {
+  color: #cbd5e1;
+  font-size: 15px;
+}
+
+/* ---- 결과 화면 ---- */
+.result-accuracy {
+  font-size: 32px;
+  font-weight: 800;
+  color: #facc15;
+  margin-top: 16px;
+}
+
+.result-canvas {
+  background: #f8fafc;
+  border-radius: 16px;
+}
+
+.result-comment {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.result-rank {
+  font-size: 16px;
+  color: #cbd5e1;
+}
