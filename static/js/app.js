@@ -557,6 +557,20 @@
   }
   function escapeAttr(s) { return escapeHtml(s); }
 
+  /* ---------- 시계 ---------- */
+
+  function pad2(n) { return n < 10 ? "0" + n : "" + n; }
+
+  function tickClock() {
+    var d = new Date();
+    var s =
+      d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) +
+      " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
+    document.getElementById("clock").textContent = s;
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
   /* ---------- 시작 ---------- */
   showScreen("main");
 })();

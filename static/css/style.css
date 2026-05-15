@@ -430,3 +430,21 @@ body {
 .admin-btn.save   { background: #facc15; color: #1e293b; }
 .admin-btn.cancel { background: rgba(255,255,255,0.18); color: #e2e8f0; }
 .admin-btn.delete { background: #f87171; color: #450a0a; }
+
+/* ---- 시계 ---- */
+.clock {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  padding: 8px 14px;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #facc15;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  z-index: 100;
+  pointer-events: none;
+}
