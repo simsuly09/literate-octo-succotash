@@ -13,13 +13,24 @@
     <section id="screen-main" class="screen">
       <h1 class="title">당신은 얼마나<br>정확한 원을 그릴 수 있나요?</h1>
       <button id="btn-start" class="btn-primary">시작</button>
+      <button id="btn-hall" class="btn-secondary">명예의 전당</button>
+      <button id="btn-admin" class="btn-ghost">관리자</button>
+    </section>
 
-      <div class="hall">
-        <h2 class="hall-title">명예의 전당</h2>
-        <p id="empty-msg" class="empty-msg hidden">아직 기록이 없어요. 첫 도전자가 되어보세요!</p>
-        <div id="podium" class="podium"></div>
-        <ol id="rank-list" class="rank-list"></ol>
+    <!-- 명예의 전당 화면 -->
+    <section id="screen-hall" class="screen wide hidden">
+      <h2 class="hall-title">명예의 전당</h2>
+      <p id="empty-msg" class="empty-msg hidden">아직 기록이 없어요. 첫 도전자가 되어보세요!</p>
+      <div class="hall-layout">
+        <div class="hall-left">
+          <canvas id="fireworks" class="fireworks"></canvas>
+          <div id="podium" class="podium"></div>
+        </div>
+        <div class="hall-right">
+          <ol id="rank-list" class="rank-list"></ol>
+        </div>
       </div>
+      <button id="btn-hall-back" class="btn-secondary">뒤로</button>
     </section>
 
     <!-- 닉네임 입력 화면 -->
@@ -32,7 +43,18 @@
         <span>상품을 받기 원하시면 동의해 주세요</span>
       </label>
 
-      <div id="contact-wrap" class="hidden">
+      <div id="privacy-wrap" class="hidden privacy-box">
+        <h3 class="privacy-title">개인정보 수집 및 이용 동의서</h3>
+        <ul class="privacy-list">
+          <li><strong>수집 항목</strong>: 닉네임, 연락처(전화번호 또는 이메일), 정확도 점수, 그린 원 데이터</li>
+          <li><strong>수집 목적</strong>: 상품 발송 및 본인 확인</li>
+          <li><strong>보유 기간</strong>: 이벤트 종료 후 3개월간 보관 후 파기</li>
+          <li><strong>거부 권리</strong>: 동의를 거부할 권리가 있으며, 거부 시 상품 수령이 제한됩니다.</li>
+        </ul>
+        <label class="consent confirm-consent">
+          <input id="input-consent-confirm" type="checkbox">
+          <span>위 사항에 동의하시겠습니까?</span>
+        </label>
         <input id="input-contact" class="text-input" type="text" maxlength="50" placeholder="연락처 (전화번호 또는 이메일)" autocomplete="off">
       </div>
 
@@ -44,7 +66,7 @@
     <section id="screen-draw" class="screen hidden">
       <div class="draw-header">
         <span class="timer-label">남은 시간</span>
-        <span id="timer" class="timer">30</span>
+        <span id="timer" class="timer">20</span>
       </div>
       <canvas id="draw-canvas" class="draw-canvas"></canvas>
       <p class="draw-hint">한 번에 원을 그려보세요!</p>
@@ -57,6 +79,38 @@
       <p id="result-comment" class="result-comment"></p>
       <p id="result-rank" class="result-rank"></p>
       <button id="btn-again" class="btn-primary">처음으로</button>
+    </section>
+
+    <!-- 관리자 로그인 화면 -->
+    <section id="screen-admin-login" class="screen hidden">
+      <h2 class="subtitle">관리자 로그인</h2>
+      <p class="muted">암호를 입력해 주세요.</p>
+      <input id="input-admin-password" class="text-input" type="password" maxlength="20" placeholder="암호">
+      <p id="admin-login-error" class="error-msg hidden">암호가 올바르지 않습니다.</p>
+      <button id="btn-admin-login" class="btn-primary">로그인</button>
+      <button id="btn-admin-login-back" class="btn-secondary">뒤로</button>
+    </section>
+
+    <!-- 관리자 메인 화면 -->
+    <section id="screen-admin" class="screen wide hidden">
+      <h2 class="subtitle">관리자 모드</h2>
+      <p class="muted">이상한 기록을 수정하거나 삭제할 수 있습니다.</p>
+      <div class="admin-table-wrap">
+        <table id="admin-table" class="admin-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>시각</th>
+              <th>닉네임</th>
+              <th>정확도</th>
+              <th>연락처</th>
+              <th>작업</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <button id="btn-admin-back" class="btn-secondary">로그아웃</button>
     </section>
 
   </div>
