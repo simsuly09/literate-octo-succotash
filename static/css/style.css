@@ -409,37 +409,6 @@ body {
   flex: none;
 }
 
-.privacy-box {
-  width: 100%;
-  background: #f7f8f9;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.privacy-title {
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--ink);
-}
-
-.privacy-list {
-  list-style: disc;
-  padding-left: 20px;
-  font-size: 13px;
-  color: var(--ink-2);
-  line-height: 1.7;
-}
-
-.confirm-consent {
-  border-top: 1px solid var(--line);
-  padding-top: 14px;
-  font-weight: 700;
-}
-
 /* ---- 그리기 ---- */
 .draw-card {
   display: flex;
@@ -510,67 +479,6 @@ body {
   font-size: 15px;
   color: var(--ink-2);
 }
-
-/* ---- 관리자 ---- */
-.admin-table-wrap {
-  width: 100%;
-  padding: 8px;
-  overflow-x: auto;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  color: var(--ink);
-}
-
-.admin-table th,
-.admin-table td {
-  padding: 12px 10px;
-  border-bottom: 1px solid var(--line);
-  text-align: left;
-  vertical-align: middle;
-}
-
-.admin-table th {
-  color: var(--ink-3);
-  font-weight: 700;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.admin-table tbody tr:last-child td { border-bottom: none; }
-
-.admin-table td input {
-  width: 100%;
-  padding: 7px 9px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  background: #f7f8f9;
-  color: var(--ink);
-  font-size: 14px;
-}
-
-.admin-actions {
-  display: flex;
-  gap: 6px;
-}
-
-.admin-btn {
-  border: none;
-  padding: 7px 12px;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.admin-btn.edit   { background: #eef2ff; color: #3a4fd6; }
-.admin-btn.save   { background: var(--ink); color: #fff; }
-.admin-btn.cancel { background: #f1f3f5; color: var(--ink-2); }
-.admin-btn.delete { background: #ffeceb; color: #e5484d; }
 
 /* ---- 시계 ---- */
 .clock {

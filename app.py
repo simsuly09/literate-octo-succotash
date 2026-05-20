@@ -2,7 +2,6 @@ import csv
 import json
 import math
 import os
-import secrets
 import threading
 import uuid
 from datetime import datetime
@@ -14,8 +13,7 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 CSV_PATH = os.path.join(DATA_DIR, "leaderboard.csv")
-CSV_FIELDS = ["id", "timestamp", "nickname", "accuracy", "consent", "contact", "points"]
-ADMIN_PASSWORD = "0326"
+CSV_FIELDS = ["id", "timestamp", "nickname", "accuracy", "points"]
 
 # Serializes CSV reads/writes so concurrent submissions from multiple
 # devices cannot interleave and corrupt the file.
@@ -36,7 +34,7 @@ def ensure_csv():
     if not os.path.exists(CSV_PATH):
         _write_all([])
         return
-    # Migrate older files (e.g. without the `id` column).
+    # Migrate older files (different columns, e.g. with consent/contact).
     with open(CSV_PATH, "r", newline="", encoding="utf-8-sig") as f:
         reader = csv.reader(f)
         try:
@@ -123,9 +121,15 @@ def read_rows():
             return list(csv.DictReader(f))
 
 
-def require_admin():
-    pw = request.headers.get("X-Admin-Password", "")
-    return secrets.compare_digest(pw, ADMIN_PASSWORD)
+def parse_points(raw_points):
+    points = []
+    for p in raw_points:
+        if isinstance(p, (list, tuple)) and len(p) >= 2:
+            try:
+                points.append([float(p[0]), float(p[1])])
+            except (ValueError, TypeError):
+                pass
+    return points
 
 
 @app.route("/")
@@ -167,35 +171,34 @@ def submit():
     if not isinstance(data, dict):
         return jsonify({"error": "invalid json"}), 400
 
+    raw_points = data.get("points", [])
+    if not isinstance(raw_points, list):
+        return jsonify({"error": "points must be a list"}), 400
+    points = parse_points(raw_points)
+    accuracy = compute_accuracy(points)
+
+    register = bool(data.get("register", False))
+
+    # Not registering for the hall of fame: just score it, don't store anything.
+    if not register:
+        return jsonify({
+            "accuracy": accuracy,
+            "rank": None,
+            "total": None,
+            "comment": comment_for(accuracy),
+            "registered": False,
+        })
+
     nickname = str(data.get("nickname", "")).strip()[:20]
     if not nickname:
         return jsonify({"error": "nickname required"}), 400
 
-    consent = bool(data.get("consent", False))
-    contact = str(data.get("contact", "")).strip()[:50] if consent else ""
-
-    raw_points = data.get("points", [])
-    if not isinstance(raw_points, list):
-        return jsonify({"error": "points must be a list"}), 400
-
-    points = []
-    for p in raw_points:
-        if isinstance(p, (list, tuple)) and len(p) >= 2:
-            try:
-                points.append([float(p[0]), float(p[1])])
-            except (ValueError, TypeError):
-                pass
-
-    accuracy = compute_accuracy(points)
     norm = normalize_points(points) if points else []
-
     row = {
         "id": uuid.uuid4().hex,
         "timestamp": datetime.now().isoformat(timespec="seconds"),
         "nickname": nickname,
         "accuracy": accuracy,
-        "consent": "1" if consent else "0",
-        "contact": contact,
         "points": json.dumps(norm, separators=(",", ":")),
     }
 
@@ -221,89 +224,8 @@ def submit():
         "rank": rank,
         "total": len(accs),
         "comment": comment_for(accuracy),
+        "registered": True,
     })
-
-
-# ---------- 관리자 API ----------
-
-@app.route("/api/admin/login", methods=["POST"])
-def admin_login():
-    data = request.get_json(silent=True) or {}
-    pw = str(data.get("password", ""))
-    if secrets.compare_digest(pw, ADMIN_PASSWORD):
-        return jsonify({"ok": True})
-    return jsonify({"ok": False}), 401
-
-
-@app.route("/api/admin/entries")
-def admin_entries():
-    if not require_admin():
-        return jsonify({"error": "unauthorized"}), 401
-    rows = read_rows()
-    out = []
-    for r in rows:
-        try:
-            acc = float(r.get("accuracy") or 0)
-        except (ValueError, TypeError):
-            acc = 0.0
-        out.append({
-            "id": r.get("id", ""),
-            "timestamp": r.get("timestamp", ""),
-            "nickname": r.get("nickname", ""),
-            "accuracy": acc,
-            "consent": r.get("consent", "0"),
-            "contact": r.get("contact", ""),
-        })
-    out.sort(key=lambda e: e["accuracy"], reverse=True)
-    return jsonify({"entries": out})
-
-
-@app.route("/api/admin/entries/<entry_id>", methods=["PUT"])
-def admin_update(entry_id):
-    if not require_admin():
-        return jsonify({"error": "unauthorized"}), 401
-    data = request.get_json(silent=True) or {}
-    new_nick = str(data.get("nickname", "")).strip()[:20] if "nickname" in data else None
-    new_acc = None
-    if "accuracy" in data:
-        try:
-            new_acc = float(data["accuracy"])
-            new_acc = round(max(0.0, min(100.0, new_acc)), 1)
-        except (ValueError, TypeError):
-            return jsonify({"error": "invalid accuracy"}), 400
-
-    ensure_csv()
-    with _csv_lock:
-        with open(CSV_PATH, "r", newline="", encoding="utf-8-sig") as f:
-            rows = list(csv.DictReader(f))
-        found = False
-        for r in rows:
-            if r.get("id") == entry_id:
-                if new_nick is not None and new_nick:
-                    r["nickname"] = new_nick
-                if new_acc is not None:
-                    r["accuracy"] = new_acc
-                found = True
-                break
-        if not found:
-            return jsonify({"error": "not found"}), 404
-        _write_all(rows)
-    return jsonify({"ok": True})
-
-
-@app.route("/api/admin/entries/<entry_id>", methods=["DELETE"])
-def admin_delete(entry_id):
-    if not require_admin():
-        return jsonify({"error": "unauthorized"}), 401
-    ensure_csv()
-    with _csv_lock:
-        with open(CSV_PATH, "r", newline="", encoding="utf-8-sig") as f:
-            rows = list(csv.DictReader(f))
-        new_rows = [r for r in rows if r.get("id") != entry_id]
-        if len(new_rows) == len(rows):
-            return jsonify({"error": "not found"}), 404
-        _write_all(new_rows)
-    return jsonify({"ok": True})
 
 
 if __name__ == "__main__":

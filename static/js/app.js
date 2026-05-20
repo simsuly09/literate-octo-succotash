@@ -9,13 +9,10 @@
     nickname: document.getElementById("screen-nickname"),
     draw: document.getElementById("screen-draw"),
     result: document.getElementById("screen-result"),
-    adminLogin: document.getElementById("screen-admin-login"),
-    admin: document.getElementById("screen-admin"),
   };
 
-  var session = { nickname: "", consent: false, contact: "" };
+  var session = { register: false, nickname: "" };
   var drawState = newDrawState();
-  var adminPassword = "";
   var stopFireworks = null;
 
   function newDrawState() {
@@ -212,23 +209,16 @@
   document.getElementById("btn-hall-back").addEventListener("click", function () {
     showScreen("main");
   });
-  document.getElementById("btn-admin").addEventListener("click", function () {
-    document.getElementById("input-admin-password").value = "";
-    document.getElementById("admin-login-error").classList.add("hidden");
-    showScreen("adminLogin");
-  });
 
-  /* ---------- 닉네임 화면 + 개인정보 동의 ---------- */
+  /* ---------- 등록 화면 ---------- */
 
-  var consentBox = document.getElementById("input-consent");
-  var consentConfirmBox = document.getElementById("input-consent-confirm");
-  var privacyWrap = document.getElementById("privacy-wrap");
+  var registerBox = document.getElementById("input-register");
+  var nicknameWrap = document.getElementById("nickname-wrap");
 
-  consentBox.addEventListener("change", function () {
-    privacyWrap.classList.toggle("hidden", !consentBox.checked);
-    if (!consentBox.checked) {
-      consentConfirmBox.checked = false;
-      document.getElementById("input-contact").value = "";
+  registerBox.addEventListener("change", function () {
+    nicknameWrap.classList.toggle("hidden", !registerBox.checked);
+    if (!registerBox.checked) {
+      document.getElementById("input-nickname").value = "";
     }
   });
 
@@ -237,25 +227,16 @@
   });
 
   document.getElementById("btn-confirm").addEventListener("click", function () {
-    var nickname = document.getElementById("input-nickname").value.trim();
-    if (!nickname) {
-      alert("닉네임을 입력해 주세요.");
-      return;
-    }
-    var consent = consentBox.checked;
-    var contact = "";
-    if (consent) {
-      if (!consentConfirmBox.checked) {
-        alert("개인정보 수집 및 이용에 동의해 주세요.");
-        return;
-      }
-      contact = document.getElementById("input-contact").value.trim();
-      if (!contact) {
-        alert("연락처를 입력해 주세요.");
+    var register = registerBox.checked;
+    var nickname = "";
+    if (register) {
+      nickname = document.getElementById("input-nickname").value.trim();
+      if (!nickname) {
+        alert("닉네임을 입력해 주세요.");
         return;
       }
     }
-    session = { nickname: nickname, consent: consent, contact: contact };
+    session = { register: register, nickname: nickname };
     startDraw();
   });
 
@@ -364,9 +345,8 @@
 
   function submitResult() {
     var payload = {
+      register: session.register,
       nickname: session.nickname,
-      consent: session.consent,
-      contact: session.contact,
       points: drawState.points,
     };
     fetch("/api/submit", {
@@ -425,159 +405,17 @@
       "정확도 " + accuracy.toFixed(1) + "점";
     document.getElementById("result-comment").textContent = data.comment || "";
     document.getElementById("result-rank").textContent =
-      data.rank ? "전체 " + data.total + "명 중 " + data.rank + "위" : "";
+      data.rank ? "전체 " + data.total + "명 중 " + data.rank + "위" : "명예의 전당에는 등록하지 않았어요";
     renderResultCanvas();
   }
 
   document.getElementById("btn-again").addEventListener("click", function () {
     document.getElementById("input-nickname").value = "";
-    document.getElementById("input-contact").value = "";
-    consentBox.checked = false;
-    consentConfirmBox.checked = false;
-    privacyWrap.classList.add("hidden");
-    session = { nickname: "", consent: false, contact: "" };
+    registerBox.checked = false;
+    nicknameWrap.classList.add("hidden");
+    session = { register: false, nickname: "" };
     showScreen("main");
   });
-
-  /* ---------- 관리자 모드 ---------- */
-
-  function adminFetch(url, options) {
-    options = options || {};
-    options.headers = Object.assign({}, options.headers || {}, {
-      "X-Admin-Password": adminPassword,
-    });
-    if (options.body && typeof options.body !== "string") {
-      options.headers["Content-Type"] = "application/json";
-      options.body = JSON.stringify(options.body);
-    }
-    return fetch(url, options);
-  }
-
-  document.getElementById("btn-admin-login-back").addEventListener("click", function () {
-    showScreen("main");
-  });
-
-  document.getElementById("btn-admin-login").addEventListener("click", function () {
-    var pw = document.getElementById("input-admin-password").value;
-    fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: pw }),
-    })
-      .then(function (r) {
-        if (r.ok) {
-          adminPassword = pw;
-          showScreen("admin");
-          loadAdminEntries();
-        } else {
-          document.getElementById("admin-login-error").classList.remove("hidden");
-        }
-      })
-      .catch(function () {
-        document.getElementById("admin-login-error").classList.remove("hidden");
-      });
-  });
-
-  document.getElementById("btn-admin-back").addEventListener("click", function () {
-    adminPassword = "";
-    showScreen("main");
-  });
-
-  function loadAdminEntries() {
-    adminFetch("/api/admin/entries")
-      .then(function (r) {
-        if (r.status === 401) throw new Error("unauthorized");
-        return r.json();
-      })
-      .then(function (data) { renderAdminTable(data.entries || []); })
-      .catch(function () {
-        alert("세션이 만료되었습니다. 다시 로그인해 주세요.");
-        adminPassword = "";
-        showScreen("adminLogin");
-      });
-  }
-
-  function renderAdminTable(entries) {
-    var tbody = document.querySelector("#admin-table tbody");
-    tbody.innerHTML = "";
-    if (entries.length === 0) {
-      var tr = document.createElement("tr");
-      tr.innerHTML = '<td colspan="6" style="text-align:center;color:#94a3b8;padding:20px">기록이 없습니다.</td>';
-      tbody.appendChild(tr);
-      return;
-    }
-    entries.forEach(function (e, idx) {
-      var tr = document.createElement("tr");
-      tr.dataset.id = e.id;
-      tr.innerHTML =
-        '<td>' + (idx + 1) + '</td>' +
-        '<td class="cell-ts">' + escapeHtml(e.timestamp) + '</td>' +
-        '<td class="cell-nick">' + escapeHtml(e.nickname) + '</td>' +
-        '<td class="cell-acc">' + (e.accuracy != null ? e.accuracy.toFixed(1) : "") + '</td>' +
-        '<td class="cell-contact">' + escapeHtml(e.contact || "") + '</td>' +
-        '<td class="admin-actions">' +
-          '<button class="admin-btn edit">수정</button>' +
-          '<button class="admin-btn delete">삭제</button>' +
-        '</td>';
-      tbody.appendChild(tr);
-
-      tr.querySelector(".edit").addEventListener("click", function () { beginEdit(tr, e); });
-      tr.querySelector(".delete").addEventListener("click", function () { confirmDelete(e); });
-    });
-  }
-
-  function beginEdit(tr, entry) {
-    var nickCell = tr.querySelector(".cell-nick");
-    var accCell = tr.querySelector(".cell-acc");
-    var actions = tr.querySelector(".admin-actions");
-
-    nickCell.innerHTML = '<input class="edit-nick" type="text" maxlength="20" value="' + escapeAttr(entry.nickname) + '">';
-    accCell.innerHTML = '<input class="edit-acc" type="number" step="0.1" min="0" max="100" value="' + entry.accuracy + '">';
-    actions.innerHTML =
-      '<button class="admin-btn save">저장</button>' +
-      '<button class="admin-btn cancel">취소</button>';
-
-    actions.querySelector(".save").addEventListener("click", function () {
-      var newNick = nickCell.querySelector(".edit-nick").value.trim();
-      var newAccRaw = accCell.querySelector(".edit-acc").value;
-      var newAcc = parseFloat(newAccRaw);
-      if (!newNick) { alert("닉네임을 입력해 주세요."); return; }
-      if (!isFinite(newAcc)) { alert("정확도 값이 올바르지 않습니다."); return; }
-      adminFetch("/api/admin/entries/" + encodeURIComponent(entry.id), {
-        method: "PUT",
-        body: { nickname: newNick, accuracy: newAcc },
-      }).then(function (r) {
-        if (!r.ok) throw new Error();
-        loadAdminEntries();
-      }).catch(function () {
-        alert("수정에 실패했습니다.");
-      });
-    });
-
-    actions.querySelector(".cancel").addEventListener("click", loadAdminEntries);
-  }
-
-  function confirmDelete(entry) {
-    if (!confirm('"' + entry.nickname + '" 기록을 삭제할까요?')) return;
-    adminFetch("/api/admin/entries/" + encodeURIComponent(entry.id), {
-      method: "DELETE",
-    }).then(function (r) {
-      if (!r.ok) throw new Error();
-      loadAdminEntries();
-    }).catch(function () {
-      alert("삭제에 실패했습니다.");
-    });
-  }
-
-  function escapeHtml(s) {
-    return String(s == null ? "" : s)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
-  function escapeAttr(s) { return escapeHtml(s); }
 
   /* ---------- 시계 ---------- */
 
