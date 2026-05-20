@@ -62,7 +62,7 @@
 
     function tick() {
       if (!running) return;
-      ctx.fillStyle = "rgba(15, 23, 42, 0.22)";
+      ctx.fillStyle = "rgba(24, 25, 29, 0.25)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       if (Math.random() < 0.05) spawn();
       var next = [];
