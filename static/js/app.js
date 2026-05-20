@@ -361,7 +361,30 @@
       });
   }
 
-  function renderResultCanvas() {
+  function bestFitCircle(pts) {
+    // Least-squares (Kåsa) fit, mirrors the server, used as a fallback
+    // when the response doesn't carry circle data.
+    var n = pts.length;
+    var mx = 0, my = 0, i;
+    for (i = 0; i < n; i++) { mx += pts[i][0]; my += pts[i][1]; }
+    mx /= n; my /= n;
+    var suu = 0, suv = 0, svv = 0, suuu = 0, svvv = 0, suvv = 0, svuu = 0;
+    for (i = 0; i < n; i++) {
+      var u = pts[i][0] - mx, v = pts[i][1] - my;
+      suu += u * u; suv += u * v; svv += v * v;
+      suuu += u * u * u; svvv += v * v * v;
+      suvv += u * v * v; svuu += v * u * u;
+    }
+    var det = suu * svv - suv * suv;
+    if (Math.abs(det) < 1e-9) return null;
+    var bu = 0.5 * (suuu + suvv), bv = 0.5 * (svvv + svuu);
+    var uc = (bu * svv - bv * suv) / det;
+    var vc = (suu * bv - suv * bu) / det;
+    var r = Math.sqrt(Math.max(0, uc * uc + vc * vc + (suu + svv) / n));
+    return { cx: mx + uc, cy: my + vc, r: r };
+  }
+
+  function renderResultCanvas(circle) {
     var rc = document.getElementById("result-canvas");
     rc.width = canvas.width;
     rc.height = canvas.height;
@@ -382,17 +405,14 @@
     rctx.lineCap = "round";
     rctx.stroke();
 
-    var n = pts.length;
-    var cx = pts.reduce(function (s, p) { return s + p[0]; }, 0) / n;
-    var cy = pts.reduce(function (s, p) { return s + p[1]; }, 0) / n;
-    var rMean = pts.reduce(function (s, p) {
-      return s + Math.hypot(p[0] - cx, p[1] - cy);
-    }, 0) / n;
+    // Prefer the server's best-fit circle so the reference matches the drawing.
+    var c = (circle && isFinite(circle.r)) ? circle : bestFitCircle(pts);
+    if (!c || !isFinite(c.r) || c.r <= 0) return;
 
     rctx.save();
     rctx.globalAlpha = 0.3;
     rctx.beginPath();
-    rctx.arc(cx, cy, rMean, 0, 2 * Math.PI);
+    rctx.arc(c.cx, c.cy, c.r, 0, 2 * Math.PI);
     rctx.fillStyle = "#ef4444";
     rctx.fill();
     rctx.restore();
@@ -406,7 +426,7 @@
     document.getElementById("result-comment").textContent = data.comment || "";
     document.getElementById("result-rank").textContent =
       data.rank ? "전체 " + data.total + "명 중 " + data.rank + "위" : "명예의 전당에는 등록하지 않았어요";
-    renderResultCanvas();
+    renderResultCanvas(data.circle);
   }
 
   document.getElementById("btn-again").addEventListener("click", function () {

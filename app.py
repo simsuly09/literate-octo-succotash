@@ -67,22 +67,63 @@ def normalize_points(points):
     return [[round((x - min_x) / span, 4), round((y - min_y) / span, 4)] for x, y in pts]
 
 
-def compute_accuracy(points):
-    """Score 0-100 for how close a drawn point path is to a perfect circle."""
+def fit_circle(points):
+    """Least-squares (Kåsa) circle fit. Returns (cx, cy, r) or None."""
+    n = len(points)
+    mx = sum(p[0] for p in points) / n
+    my = sum(p[1] for p in points) / n
+    suu = suv = svv = suuu = svvv = suvv = svuu = 0.0
+    for x, y in points:
+        u = x - mx
+        v = y - my
+        suu += u * u
+        suv += u * v
+        svv += v * v
+        suuu += u * u * u
+        svvv += v * v * v
+        suvv += u * v * v
+        svuu += v * u * u
+    det = suu * svv - suv * suv
+    if abs(det) < 1e-9:
+        return None
+    bu = 0.5 * (suuu + suvv)
+    bv = 0.5 * (svvv + svuu)
+    uc = (bu * svv - bv * suv) / det
+    vc = (suu * bv - suv * bu) / det
+    r = math.sqrt(max(0.0, uc * uc + vc * vc + (suu + svv) / n))
+    return mx + uc, my + vc, r
+
+
+def analyze(points):
+    """Return (accuracy 0-100, circle dict|None) for a drawn point path.
+
+    The reference circle is a least-squares best fit, so it lines up with
+    the drawing instead of drifting toward dense parts of the stroke.
+    """
     if not points or len(points) < 10:
-        return 0.0
+        return 0.0, None
 
     n = len(points)
-    cx = sum(p[0] for p in points) / n
-    cy = sum(p[1] for p in points) / n
+    fit = fit_circle(points)
+    if fit is not None:
+        cx, cy, r_fit = fit
+    else:
+        cx = sum(p[0] for p in points) / n
+        cy = sum(p[1] for p in points) / n
+        r_fit = None
+
     radii = [math.hypot(p[0] - cx, p[1] - cy) for p in points]
     r_mean = sum(radii) / n
     if r_mean < 1e-6:
-        return 0.0
+        return 0.0, None
+    radius = r_fit if r_fit else r_mean
 
+    # roundness: low radius variation -> close to a circle.
+    # The 0.45 denominator makes scoring ~10% more sensitive to deviation
+    # than the previous 0.5.
     stddev = math.sqrt(sum((r - r_mean) ** 2 for r in radii) / n)
     cv = stddev / r_mean
-    roundness = max(0.0, 1.0 - cv / 0.5)
+    roundness = max(0.0, 1.0 - cv / 0.45)
 
     gap = math.hypot(points[0][0] - points[-1][0], points[0][1] - points[-1][1])
     closure = max(0.0, 1.0 - gap / r_mean)
@@ -99,7 +140,9 @@ def compute_accuracy(points):
     coverage = min(1.0, abs(total) / (2 * math.pi))
 
     score = 100.0 * (0.6 * roundness + 0.2 * closure + 0.2 * coverage)
-    return round(max(0.0, min(100.0, score)), 1)
+    score = round(max(0.0, min(100.0, score)), 1)
+    circle = {"cx": round(cx, 2), "cy": round(cy, 2), "r": round(radius, 2)}
+    return score, circle
 
 
 def comment_for(accuracy):
@@ -175,7 +218,7 @@ def submit():
     if not isinstance(raw_points, list):
         return jsonify({"error": "points must be a list"}), 400
     points = parse_points(raw_points)
-    accuracy = compute_accuracy(points)
+    accuracy, circle = analyze(points)
 
     register = bool(data.get("register", False))
 
@@ -186,6 +229,7 @@ def submit():
             "rank": None,
             "total": None,
             "comment": comment_for(accuracy),
+            "circle": circle,
             "registered": False,
         })
 
@@ -224,6 +268,7 @@ def submit():
         "rank": rank,
         "total": len(accs),
         "comment": comment_for(accuracy),
+        "circle": circle,
         "registered": True,
     })
 
