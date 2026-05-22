@@ -2,7 +2,6 @@ import csv
 import json
 import math
 import os
-import threading
 import uuid
 from datetime import datetime
 
@@ -14,10 +13,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 CSV_PATH = os.path.join(DATA_DIR, "leaderboard.csv")
 CSV_FIELDS = ["id", "timestamp", "nickname", "accuracy", "points"]
-
-# Serializes CSV reads/writes so concurrent submissions from multiple
-# devices cannot interleave and corrupt the file.
-_csv_lock = threading.Lock()
 
 
 def _write_all(rows):
@@ -159,9 +154,8 @@ def comment_for(accuracy):
 
 def read_rows():
     ensure_csv()
-    with _csv_lock:
-        with open(CSV_PATH, "r", newline="", encoding="utf-8-sig") as f:
-            return list(csv.DictReader(f))
+    with open(CSV_PATH, "r", newline="", encoding="utf-8-sig") as f:
+        return list(csv.DictReader(f))
 
 
 def parse_points(raw_points):
@@ -247,13 +241,12 @@ def submit():
     }
 
     ensure_csv()
-    with _csv_lock:
-        # Append in plain utf-8: the file already has a BOM at the start,
-        # we don't want a second one in the middle.
-        with open(CSV_PATH, "a", newline="", encoding="utf-8") as f:
-            csv.DictWriter(f, fieldnames=CSV_FIELDS).writerow(row)
-        with open(CSV_PATH, "r", newline="", encoding="utf-8-sig") as f:
-            rows = list(csv.DictReader(f))
+    # Append in plain utf-8: the file already has a BOM at the start,
+    # we don't want a second one in the middle.
+    with open(CSV_PATH, "a", newline="", encoding="utf-8") as f:
+        csv.DictWriter(f, fieldnames=CSV_FIELDS).writerow(row)
+    with open(CSV_PATH, "r", newline="", encoding="utf-8-sig") as f:
+        rows = list(csv.DictReader(f))
 
     accs = []
     for r in rows:
@@ -275,5 +268,5 @@ def submit():
 
 if __name__ == "__main__":
     ensure_csv()
-    # threaded=True lets multiple devices play and submit concurrently.
-    app.run(host="0.0.0.0", port=5000, threaded=True, debug=False)
+    # Local single-device app: bind to localhost only.
+    app.run(host="127.0.0.1", port=5000, debug=False)
