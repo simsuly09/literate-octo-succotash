@@ -135,20 +135,30 @@ def analyze(points):
     coverage = min(1.0, abs(total) / (2 * math.pi))
 
     score = 100.0 * (0.6 * roundness + 0.2 * closure + 0.2 * coverage)
-    score = round(max(0.0, min(100.0, score)), 1)
+    score = round(max(0.0, min(100.0, score)), 3)
     circle = {"cx": round(cx, 2), "cy": round(cy, 2), "r": round(radius, 2)}
     return score, circle
 
 
 def comment_for(accuracy):
-    if accuracy >= 80:
+    if accuracy >= 90:
         return "당신은 컴퍼스인가요?!"
-    if accuracy >= 70:
+    if accuracy >= 80:
         return "거의 완벽해요, 놀라운 솜씨!"
+    if accuracy >= 70:
+        return "아주 동그랗네요!"
+    if accuracy >= 60:
+        return "꽤 동그래요!"
     if accuracy >= 50:
-        return "꽤 동그랗네요!"
+        return "제법 원에 가까워요"
+    if accuracy >= 40:
+        return "음, 원의 느낌은 나요"
     if accuracy >= 30:
-        return "음... 원의 형태는 갖췄어요"
+        return "원이라고 우길 수는 있어요"
+    if accuracy >= 20:
+        return "살짝 많이 찌그러졌어요"
+    if accuracy >= 10:
+        return "이건... 감자인가요?"
     return "이것은... 추상화인가요?"
 
 
@@ -217,8 +227,8 @@ def stats():
             today_accs.append(a)
     return jsonify({
         "count": len(accs),
-        "best": round(max(accs), 1) if accs else None,
-        "today_best": round(max(today_accs), 1) if today_accs else None,
+        "best": round(max(accs), 3) if accs else None,
+        "today_best": round(max(today_accs), 3) if today_accs else None,
     })
 
 

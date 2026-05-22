@@ -36,9 +36,9 @@
       .then(function (d) {
         document.getElementById("stat-count").textContent = d.count;
         document.getElementById("stat-best").textContent =
-          d.best != null ? d.best.toFixed(1) : "-";
+          d.best != null ? d.best.toFixed(2) : "-";
         document.getElementById("stat-today").textContent =
-          d.today_best != null ? d.today_best.toFixed(1) : "-";
+          d.today_best != null ? d.today_best.toFixed(2) : "-";
       })
       .catch(function () {});
   }
@@ -144,7 +144,7 @@
 
     var acc = document.createElement("div");
     acc.className = "podium-acc";
-    acc.textContent = entry.accuracy.toFixed(1) + "점";
+    acc.textContent = entry.accuracy.toFixed(2) + "점";
     slot.appendChild(acc);
 
     var base = document.createElement("div");
@@ -196,7 +196,7 @@
 
       var acc = document.createElement("span");
       acc.className = "rank-acc";
-      acc.textContent = entry.accuracy.toFixed(1) + "점";
+      acc.textContent = entry.accuracy.toFixed(2) + "점";
 
       li.appendChild(num);
       li.appendChild(nick);
@@ -436,7 +436,7 @@
     showScreen("result");
     var accuracy = (typeof data.accuracy === "number") ? data.accuracy : 0;
     document.getElementById("result-accuracy").textContent =
-      "정확도 " + accuracy.toFixed(1) + "점";
+      "정확도 " + accuracy.toFixed(2) + "점";
     document.getElementById("result-comment").textContent = data.comment || "";
     document.getElementById("result-rank").textContent =
       data.rank ? "전체 " + data.total + "명 중 " + data.rank + "위" : "명예의 전당에는 등록하지 않았어요";
