@@ -27,6 +27,20 @@
       stopFireworks();
       stopFireworks = null;
     }
+    if (name === "main") loadStats();
+  }
+
+  function loadStats() {
+    fetch("/api/stats")
+      .then(function (res) { return res.json(); })
+      .then(function (d) {
+        document.getElementById("stat-count").textContent = d.count;
+        document.getElementById("stat-best").textContent =
+          d.best != null ? d.best.toFixed(1) : "-";
+        document.getElementById("stat-today").textContent =
+          d.today_best != null ? d.today_best.toFixed(1) : "-";
+      })
+      .catch(function () {});
   }
 
   /* ---------- 폭죽 ---------- */

@@ -19,12 +19,28 @@
 
       <!-- 메인 화면 -->
       <section id="screen-main" class="screen">
+        <div class="bg-blobs" aria-hidden="true">
+          <span class="blob blob-a"></span>
+          <span class="blob blob-b"></span>
+        </div>
         <div class="card hero-card">
-          <h1 class="title">당신은 얼마나<br>정확한 원을 그릴 수 있나요?</h1>
-          <p class="hero-sub">마우스나 손가락으로 가장 완벽한 원에 도전해 보세요.</p>
-          <div class="hero-actions">
-            <button id="btn-start" class="btn-primary">시작하기</button>
-            <button id="btn-hall" class="btn-secondary">명예의 전당</button>
+          <svg class="hero-ring" viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="ring-dashed" cx="100" cy="100" r="92"></circle>
+            <circle class="ring-draw" cx="100" cy="100" r="78"></circle>
+          </svg>
+          <div class="hero-content">
+            <span class="hero-badge">CIRCLE CHALLENGE</span>
+            <h1 class="title">당신은 얼마나<br><span class="accent">정확한 원</span>을<br>그릴 수 있나요?</h1>
+            <p class="hero-sub">마우스나 손가락으로 가장 완벽한 원에 도전해 보세요.</p>
+            <div class="stat-strip">
+              <div class="stat"><span class="stat-num" id="stat-count">-</span><span class="stat-label">총 기록</span></div>
+              <div class="stat"><span class="stat-num" id="stat-best">-</span><span class="stat-label">최고 점수</span></div>
+              <div class="stat"><span class="stat-num" id="stat-today">-</span><span class="stat-label">오늘 최고</span></div>
+            </div>
+            <div class="hero-actions">
+              <button id="btn-start" class="btn-primary">시작하기</button>
+              <button id="btn-hall" class="btn-secondary">명예의 전당</button>
+            </div>
           </div>
         </div>
       </section>

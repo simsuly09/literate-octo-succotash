@@ -202,6 +202,26 @@ def leaderboard():
     return jsonify({"entries": result})
 
 
+@app.route("/api/stats")
+def stats():
+    today = datetime.now().date().isoformat()
+    accs = []
+    today_accs = []
+    for r in read_rows():
+        try:
+            a = float(r["accuracy"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        accs.append(a)
+        if str(r.get("timestamp", ""))[:10] == today:
+            today_accs.append(a)
+    return jsonify({
+        "count": len(accs),
+        "best": round(max(accs), 1) if accs else None,
+        "today_best": round(max(today_accs), 1) if today_accs else None,
+    })
+
+
 @app.route("/api/submit", methods=["POST"])
 def submit():
     data = request.get_json(silent=True)
