@@ -465,6 +465,52 @@
   tickClock();
   setInterval(tickClock, 1000);
 
+  /* ---------- 메인 데모 애니메이션 ---------- */
+
+  function initDemoAnimation() {
+    var path = document.querySelector(".demo-stroke");
+    if (!path || typeof path.animate !== "function") return;
+
+    // 손그림 같은 살짝 찌그러진 원 경로를 만든다. 시작점을 맨 위로
+    // 두고 약 12도 정도 미세하게 열어두어 진짜 손으로 그린 느낌을 낸다.
+    var cx = 150, cy = 155, R = 95;
+    var total = 100, end = 97;
+    var d = "";
+    for (var i = 0; i <= end; i++) {
+      var t = -Math.PI / 2 + (i / total) * Math.PI * 2;
+      var r = R + 4 * Math.sin(7 * t + 0.5) + 2 * Math.sin(13 * t + 1.2) - 1;
+      var x = cx + r * Math.cos(t);
+      var y = cy + r * Math.sin(t);
+      d += (i === 0 ? "M" : "L") + x.toFixed(2) + " " + y.toFixed(2);
+    }
+    path.setAttribute("d", d);
+
+    var len = path.getTotalLength();
+    path.style.strokeDasharray = len;
+
+    var reduced = window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      path.style.strokeDashoffset = 0;
+      path.style.opacity = 1;
+      return;
+    }
+
+    path.animate([
+      { strokeDashoffset: len, opacity: 0, offset: 0 },
+      { opacity: 1, offset: 0.06 },
+      { strokeDashoffset: 0, opacity: 1, offset: 0.5 },
+      { strokeDashoffset: 0, opacity: 1, offset: 0.85 },
+      { opacity: 0, offset: 0.98 },
+      { strokeDashoffset: len, opacity: 0, offset: 1 },
+    ], {
+      duration: 6000,
+      iterations: Infinity,
+      easing: "ease-in-out",
+    });
+  }
+  initDemoAnimation();
+
   /* ---------- 시작 ---------- */
   showScreen("main");
 })();

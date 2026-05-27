@@ -254,58 +254,72 @@ body {
 .demo-card {
   position: relative;
   overflow: hidden;
-  padding: 20px;
-  min-height: 360px;
+  padding: 20px 18px;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.demo-result-score {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: var(--ink);
+  opacity: 0;
+  animation: demo-score-show 6s ease-in-out infinite;
+}
+
+.demo-result-canvas {
+  flex: 1;
+  background: #f7f8f9;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
   display: flex;
   align-items: stretch;
   justify-content: stretch;
+  min-height: 240px;
 }
 
 .demo-anim {
   width: 100%;
   height: 100%;
-  flex: 1;
+  display: block;
 }
 
-.demo-text {
-  font-size: 30px;
-  font-weight: 800;
-  fill: #1a1d1f;
-  letter-spacing: -0.5px;
+.demo-fill {
+  fill: #ef4444;
   opacity: 0;
-  transform: rotate(-7deg);
-  transform-origin: 150px 70px;
-  animation: demo-text 6s ease-in-out infinite;
+  animation: demo-fill-show 6s ease-in-out infinite;
 }
 
-.demo-circle {
+.demo-stroke {
   fill: none;
   stroke: #2563eb;
-  stroke-width: 6;
+  stroke-width: 4;
   stroke-linecap: round;
-  stroke-dasharray: 578;
-  stroke-dashoffset: 578;
+  stroke-linejoin: round;
   opacity: 0;
-  transform: rotate(-90deg);
-  transform-origin: 150px 180px;
-  animation: demo-draw 6s ease-in-out infinite;
+  /* stroke-dasharray + offset and keyframes set by JS via Element.animate */
 }
 
-@keyframes demo-draw {
-  0%   { stroke-dashoffset: 578; opacity: 0; }
-  6%   { opacity: 1; }
-  50%  { stroke-dashoffset: 0; opacity: 1; }
-  85%  { stroke-dashoffset: 0; opacity: 1; }
-  98%  { opacity: 0; }
-  100% { stroke-dashoffset: 578; opacity: 0; }
+@keyframes demo-fill-show {
+  0%, 50%  { opacity: 0; }
+  60%      { opacity: 0.3; }
+  85%      { opacity: 0.3; }
+  98%      { opacity: 0; }
+  100%     { opacity: 0; }
 }
 
-@keyframes demo-text {
-  0%, 50% { opacity: 0; }
-  60%     { opacity: 1; }
-  85%     { opacity: 1; }
-  98%     { opacity: 0; }
-  100%    { opacity: 0; }
+@keyframes demo-score-show {
+  0%, 50%  { opacity: 0; }
+  60%      { opacity: 1; }
+  85%      { opacity: 1; }
+  98%      { opacity: 0; }
+  100%     { opacity: 0; }
 }
 
 .hero-content {
@@ -386,9 +400,11 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .blob-a, .blob-b, .demo-circle, .demo-text { animation: none; }
-  .demo-circle { stroke-dashoffset: 0; opacity: 1; }
-  .demo-text { opacity: 1; }
+  .blob-a, .blob-b,
+  .demo-stroke, .demo-fill, .demo-result-score { animation: none; }
+  .demo-stroke { stroke-dashoffset: 0; opacity: 1; }
+  .demo-fill { opacity: 0.3; }
+  .demo-result-score { opacity: 1; }
 }
 
 @media (max-width: 720px) {
