@@ -228,52 +228,84 @@ body {
   50% { transform: translate(-26px, -20px); }
 }
 
-.hero-card {
+.hero-layout {
   position: relative;
   z-index: 1;
-  overflow: hidden;
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.demo-card,
+.hero-card {
+  flex: 1 1 50%;
+  min-width: 0;
+}
+
+.hero-card {
   text-align: center;
   padding: 48px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.hero-ring {
-  position: absolute;
-  right: -40px;
-  top: 50%;
-  width: 220px;
-  height: 220px;
-  transform: translateY(-50%);
-  z-index: 0;
-  pointer-events: none;
-  opacity: 1;
+.demo-card {
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  min-height: 360px;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
 }
 
-.ring-dashed {
+.demo-anim {
+  width: 100%;
+  height: 100%;
+  flex: 1;
+}
+
+.demo-text {
+  font-size: 30px;
+  font-weight: 800;
+  fill: #1a1d1f;
+  letter-spacing: -0.5px;
+  opacity: 0;
+  transform: rotate(-7deg);
+  transform-origin: 150px 70px;
+  animation: demo-text 6s ease-in-out infinite;
+}
+
+.demo-circle {
   fill: none;
-  stroke: var(--line);
-  stroke-width: 2;
-  stroke-dasharray: 2 9;
-  transform-origin: 100px 100px;
-  animation: spin 26s linear infinite;
-}
-
-.ring-draw {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 4;
+  stroke: #2563eb;
+  stroke-width: 6;
   stroke-linecap: round;
-  stroke-dasharray: 490;
-  opacity: 1;
-  transform-origin: 100px 100px;
+  stroke-dasharray: 578;
+  stroke-dashoffset: 578;
+  opacity: 0;
   transform: rotate(-90deg);
-  animation: draw-circle 4.5s ease-in-out infinite;
+  transform-origin: 150px 180px;
+  animation: demo-draw 6s ease-in-out infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes draw-circle {
-  0%   { stroke-dashoffset: 490; }
-  50%  { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: -490; }
+@keyframes demo-draw {
+  0%   { stroke-dashoffset: 578; opacity: 0; }
+  6%   { opacity: 1; }
+  50%  { stroke-dashoffset: 0; opacity: 1; }
+  85%  { stroke-dashoffset: 0; opacity: 1; }
+  98%  { opacity: 0; }
+  100% { stroke-dashoffset: 578; opacity: 0; }
+}
+
+@keyframes demo-text {
+  0%, 50% { opacity: 0; }
+  60%     { opacity: 1; }
+  85%     { opacity: 1; }
+  98%     { opacity: 0; }
+  100%    { opacity: 0; }
 }
 
 .hero-content {
@@ -354,11 +386,14 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .blob-a, .blob-b, .ring-dashed, .ring-draw { animation: none; }
+  .blob-a, .blob-b, .demo-circle, .demo-text { animation: none; }
+  .demo-circle { stroke-dashoffset: 0; opacity: 1; }
+  .demo-text { opacity: 1; }
 }
 
-@media (max-width: 640px) {
-  .hero-ring { display: none; }
+@media (max-width: 720px) {
+  .hero-layout { flex-direction: column; }
+  .demo-card { min-height: 260px; }
 }
 
 .subtitle {
