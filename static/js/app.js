@@ -5,7 +5,6 @@
 
   var screens = {
     main: document.getElementById("screen-main"),
-    hall: document.getElementById("screen-hall"),
     nickname: document.getElementById("screen-nickname"),
     draw: document.getElementById("screen-draw"),
     result: document.getElementById("screen-result"),
@@ -23,11 +22,18 @@
     Object.keys(screens).forEach(function (key) {
       screens[key].classList.toggle("hidden", key !== name);
     });
-    if (stopFireworks && name !== "hall") {
+    if (stopFireworks && name !== "main") {
       stopFireworks();
       stopFireworks = null;
     }
-    if (name === "main") loadStats();
+    if (name === "main") {
+      loadStats();
+      loadLeaderboard().then(function () {
+        var canvas = document.getElementById("fireworks");
+        if (stopFireworks) stopFireworks();
+        stopFireworks = startFireworks(canvas);
+      });
+    }
   }
 
   function loadStats() {
@@ -205,23 +211,10 @@
     });
   }
 
-  function openHall() {
-    showScreen("hall");
-    loadLeaderboard().then(function () {
-      var canvas = document.getElementById("fireworks");
-      if (stopFireworks) stopFireworks();
-      stopFireworks = startFireworks(canvas);
-    });
-  }
-
   /* ---------- 메인 화면 ---------- */
 
   document.getElementById("btn-start").addEventListener("click", function () {
     showScreen("nickname");
-  });
-  document.getElementById("btn-hall").addEventListener("click", openHall);
-  document.getElementById("btn-hall-back").addEventListener("click", function () {
-    showScreen("main");
   });
 
   /* ---------- 등록 화면 ---------- */
